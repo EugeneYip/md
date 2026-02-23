@@ -2,36 +2,6 @@
 
 > 目標：讓你從零開始，把 `https://notes.<你的網域>/` 成功部署起來，並可建立與保存筆記。
 
-> 這個 repo 現在**不只有教學**，也已經幫你把可直接部署的檔案架好（`deploy/` 與 `scripts/`）。
-
-## 這份 repo 已經幫你架好的內容
-
-- `deploy/docker-compose.yml`：HedgeDoc + PostgreSQL + Caddy 的完整 compose（含 `restart: unless-stopped`）
-- `deploy/Caddyfile`：Caddy 自動 HTTPS 反向代理設定
-- `deploy/.env.example`：你只要填 `DOMAIN`、`EMAIL`，其餘可沿用
-- `scripts/init-env.sh`：自動產生 `.env` 與隨機密碼/secret
-- `scripts/up.sh`：一鍵 `pull + up -d + ps`
-
-### 最快啟動（在你的 VPS）
-
-```bash
-# 1) 進專案根目錄
-cd /opt/hedgedoc
-
-# 2) 產生 deploy/.env（含隨機密碼）
-./scripts/init-env.sh
-
-# 3) 編輯 deploy/.env 只改兩個欄位
-nano deploy/.env
-# DOMAIN=notes.你的網域
-# EMAIL=你的Email
-
-# 4) 啟動
-./scripts/up.sh
-```
-
----
-
 ## A. 一頁式總覽（12 個大步驟）
 
 1. 準備你要填的基本資訊（網域、Email、密碼、SSH Key）
