@@ -1,0 +1,6 @@
+{$DOMAIN} {
+    tls {$EMAIL}
+
+    encode gzip
+    reverse_proxy hedgedoc:3000
+}
