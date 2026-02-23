@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: hedgedoc-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      TZ: ${TZ}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - hedgedoc_net
+
+  hedgedoc:
+    image: quay.io/hedgedoc/hedgedoc:1.10.0
+    container_name: hedgedoc-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      CMD_DB_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      CMD_DOMAIN: ${DOMAIN}
+      CMD_URL_ADDPORT: "false"
+      CMD_PROTOCOL_USESSL: "true"
+      CMD_ALLOW_ANONYMOUS: "true"
+      CMD_ALLOW_ANONYMOUS_EDITS: "true"
+      CMD_SESSION_SECRET: ${SESSION_SECRET}
+      TZ: ${TZ}
+    expose:
+      - "3000"
+    networks:
+      - hedgedoc_net
+
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: hedgedoc-caddy
+    restart: unless-stopped
+    depends_on:
+      - hedgedoc
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - hedgedoc_net
+
+volumes:
+  db_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  hedgedoc_net:
+    driver: bridge
